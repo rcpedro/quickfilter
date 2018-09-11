@@ -31,6 +31,13 @@ describe 'Queries' do
     it { expect(subject.count).to eq(2) }
   end
 
+  describe 'No Filter (Null)' do
+    subject { User.filter(first_name: { likeic: nil }) }
+
+    it { expect(subject.is_a?(ActiveRecord::Relation)).to eq(true) }
+    it { expect(subject.count).to eq(2) }
+  end
+
   describe 'Basic Filter (Match)' do
     subject { User.filter(first_name: { likeic: 'jOhn' }, status: { in: [0, 1] }) }
     it { expect(subject.count).to eq(1) }
@@ -51,5 +58,11 @@ describe 'Queries' do
     subject { University.filter(name: { eq: 'SLU' }, 
                                 users: { first_name: { likeic: 'eric' }}) }
     it { expect(subject.count).to eq(0) }
+  end
+
+  describe 'Join Filter (No Join)' do
+    subject { University.filter(name: { eq: 'SLU' }, 
+                                users: { first_name: { likeic: nil }}) }
+    it { expect(subject.to_sql).to eq("SELECT \"universities\".* FROM \"universities\" WHERE (universities.name = 'SLU')") }
   end
 end
